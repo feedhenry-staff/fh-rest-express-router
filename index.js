@@ -1,6 +1,8 @@
 'use strict';
 
 var VError = require('verror')
+  , bodyParser = require('body-parser')
+  , util = require('./util')
   , express;
 
 try {
@@ -22,70 +24,72 @@ try {
 module.exports = function (adapter) {
   var router = express.Router();
 
-  function execAdapterFunction (fnName, param, callback) {
-    if (adapter[fnName]) {
-      try {
-        adapter[fnName](param, callback);
-      } catch (e) {
-        callback(
-          new VError(e, 'failed to execute adapter function "%s"', fnName),
-          null
-        );
-      }
-    } else {
-      callback(new VError('adapter has not implemented function "%s"', fnName));
-    }
-  }
+  // Need to parse incoming JSON data
+  router.use(bodyParser.json());
 
-  function onAdapterExecComplete (res, next) {
-    return function _execComplete (err, data) {
-      if (err) {
-        next(err);
-      } else {
-        res.json(data);
-      }
-    };
-  }
 
-  router.get('/', function doList (req, res, next) {
-    execAdapterFunction(
+  router.get('/', doList);          // Generic query endpoint
+  router.get('/:id', doRead);       // Get specific item
+  router.put('/:id', doUpdate);     // Update specific item
+  router.post('/', doCreate);       // Create new entry
+  router.delete('/:id', doDelete);  // Delete specific item
+
+
+  function doList (req, res, next) {
+    util.execAdapterFunction(
+      adapter,
       'list',
-      req.query,
-      onAdapterExecComplete(res, next)
+      {
+        query: req.query
+      },
+      util.onAdapterExecComplete(res, next)
     );
-  });
+  }
 
-  router.get('/:id', function doRead (req, res, next) {
-    execAdapterFunction(
+  function doRead (req, res, next) {
+    util.execAdapterFunction(
+      adapter,
       'read',
-      req.params.id,
-      onAdapterExecComplete(res, next)
+      {
+        id: req.params.id
+      },
+      util.onAdapterExecComplete(res, next)
     );
-  });
+  }
 
-  router.put('/:id', function doUpdate (req, res, next) {
-    execAdapterFunction(
+  function doUpdate (req, res, next) {
+    util.execAdapterFunction(
+      adapter,
       'update',
-      req.params.id,
-      onAdapterExecComplete(res, next)
+      {
+        id: req.params.id,
+        data: req.body
+      },
+      util.onAdapterExecComplete(res, next)
     );
-  });
+  }
 
-  router.post('/', function doCreate (req, res, next) {
-    execAdapterFunction(
+  function doCreate (req, res, next) {
+    util.execAdapterFunction(
+      adapter,
       'create',
-      req.body,
-      onAdapterExecComplete(res, next)
+      {
+        data: req.body
+      },
+      util.onAdapterExecComplete(res, next)
     );
-  });
+  }
 
-  router.delete('/:id', function doDelete (req, res, next) {
-    execAdapterFunction(
+  function doDelete (req, res, next) {
+    util.execAdapterFunction(
+      adapter,
       'delete',
-      req.params.id,
-      onAdapterExecComplete(res, next)
+      {
+        id: req.params.id
+      },
+      util.onAdapterExecComplete(res, next)
     );
-  });
+  }
 
   return router;
 };

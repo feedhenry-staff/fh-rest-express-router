@@ -1,0 +1,26 @@
+{
+  "name": "fh-sync-express-router",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/feedhenry-staff/fh-sync-express-router.git"
+  },
+  "keywords": [
+    "fh",
+    "rhmap",
+    "sync",
+    "router",
+    "express"
+  ],
+  "author": "Evan Shortiss",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/feedhenry-staff/fh-sync-express-router/issues"
+  },
+  "homepage": "https://github.com/feedhenry-staff/fh-sync-express-router#readme"
+}

@@ -79,9 +79,9 @@ describe(__filename, function () {
         .get('/orders/?group=admin')
         .expect(500)
         .end(function (err, res) {
-          expect(res.text).to.exist;
-          expect(res.text).to.contain(
-            'error executing adapter function: list error'
+          expect(res.body.msg).to.exist;
+          expect(res.body.msg).to.contain(
+            'error executing adapter function "list": list error'
           );
           expect(adapter.list.getCall(0).args[0]).to.deep.equal({
             query: {
@@ -100,9 +100,10 @@ describe(__filename, function () {
         .get('/orders/?group=admin')
         .expect(500)
         .end(function (err, res) {
-          expect(res.text).to.exist;
-          expect(res.text).to.contain(
-            'failed to execute adapter function list for dataset "orders": list exception'
+          expect(res.body.msg).to.exist;
+          expect(res.body.msg).to.contain(
+            'error executing adapter function "list": failed to exec adapter ' +
+            'function list for "orders" with params'
           );
           expect(adapter.list.getCall(0).args[0]).to.deep.equal({
             query: {

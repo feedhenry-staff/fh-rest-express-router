@@ -39,7 +39,8 @@ var fhSyncMySqlAdapter = require('fh-sync-mysql-adapter');
 
 // Expose a RESTful API to orders data, e.g:
 // GET /orders/12345
-app.use('/orders', fhSyncExpressRouter(
+app.use(fhSyncExpressRouter(
+  'orders',
   fhSyncMySqlAdapter({
     dbOpts: {
       // See: https://github.com/felixge/node-mysql
@@ -50,13 +51,18 @@ app.use('/orders', fhSyncExpressRouter(
     },
 
     // Database table to expose
-    table: 'orders'
+    table: 'orders',
+
+    // Primary key for items in the "orders" table.
+    // Required to map entries to an fh.sync friendly format
+    pk: 'id'
   })
 ));
 
 // Important that this is last!
 app.use(mbaasExpress.errorHandler());
 
+var port = process.env.FH_PORT || process.env.VCAP_APP_PORT || 8001;
 app.listen(port, function() {
   log.info('app started on port: %s', port);
 });

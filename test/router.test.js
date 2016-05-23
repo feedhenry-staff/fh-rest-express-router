@@ -24,6 +24,7 @@ describe(__filename, function () {
     app.use(require('../lib/router')(dataset, adapter));
 
     app.use(function (err, req, res, next) {
+      /*jshint unused: false*/
       res.end(err.toString());
     });
 

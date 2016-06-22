@@ -19,12 +19,20 @@ app.use(mbaasExpress.fhmiddleware());
 
 // Add a /users route that's linked to an in memory store
 app.use(
-  fhRestRouter('users', memoryRestAdapter())
+  '/users',
+  fhRestRouter({
+    name: 'users',
+    adapter: memoryRestAdapter()
+  })
 );
 
 // Add an /orders route linked to an in memory store
 app.use(
-  fhRestRouter('orders', memoryRestAdapter())
+  '/orders',
+  fhRestRouter({
+    name: 'orders',
+    adapter: memoryRestAdapter()
+  })
 );
 
 // Important that this is last!

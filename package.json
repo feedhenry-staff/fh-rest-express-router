@@ -1,16 +1,17 @@
 {
   "name": "fh-rest-express-router",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Simlpe RESTful API creation for backend data stores",
   "main": "lib/router.js",
   "scripts": {
-    "linelint": "linelint $(ls lib/*.js)",
-    "jshint": "jshint $(ls lib/*.js)",
-    "check-coverage": "istanbul check-coverage --statements 100 --branches 100 --functions 100 --lines 100",
-    "cover": "istanbul cover -x *.test.js _mocha test/",
+    "linelint": "linelint $(find lib/ -name '*.js' -not -name '*.test.js')",
+    "jshint": "jshint $(find lib/ -name '*.js' -not -name '*.test.js')",
+    "check-coverage": "istanbul check-coverage --statements 98 --branches 98 --functions 98 --lines 98",
+    "cover": "istanbul cover _mocha $(find lib/ -name '*.test.js')",
     "format": "npm run linelint && npm run jshint",
-    "unit": "mocha test/",
-    "test": "npm run format && npm run unit && npm run cover && npm run check-coverage"
+    "unit": "mocha $(find lib/ -name '*.test.js')",
+    "test": "npm run format && npm run unit && npm run cover && npm run check-coverage",
+    "example": "node example/index.js | bunyan"
   },
   "repository": {
     "type": "git",
@@ -38,6 +39,7 @@
   },
   "devDependencies": {
     "chai": "^3.5.0",
+    "clear-require": "^1.0.1",
     "express": "^4.13.4",
     "fh-mbaas-api": "^5.5.0",
     "istanbul": "^0.4.3",

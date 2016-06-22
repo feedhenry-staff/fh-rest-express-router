@@ -79,9 +79,9 @@ var fhRestMySqlAdapter = require('fh-rest-mysql-adapter');
 
 // Creates a handler for incoming HTTP requests that want to perform CRUDL
 // operations on the "orders" table in your MySQL database
-var ordersRouter = fhRestExpressRouter(
-  'orders',
-  fhRestMySqlAdapter({
+var ordersRouter = fhRestExpressRouter({
+  name: 'orders',
+  adapter: fhRestMySqlAdapter({
     dbOpts: {
       // See: https://github.com/felixge/node-mysql
       host: 'localhost',
@@ -97,7 +97,7 @@ var ordersRouter = fhRestExpressRouter(
     // Required to map entries to an fh.sync SDK friendly format
     pk: 'id'
   })
-)
+})
 
 // Expose a RESTful API to orders data, e.g:
 // GET /orders/12345
@@ -214,3 +214,14 @@ Sample response:
   "lastname": "hat"
 }
 ```
+
+## Changelog
+
+* 0.2.0
+  * Restructure codebase
+  * Instead of multiple args, an options object is now expected
+  * Place routing structure responsibility on developers (opts.name is not used
+  to create the /routeName anymore)
+  * Add 404 response for GET calls for specific resouce IDs that do not exist
+
+* 0.1.0 - Initial realease

@@ -219,6 +219,13 @@ Sample response:
 
 ## Changelog
 
+* 0.3.0 - 0.3.1
+  * Return 404 if adapter returns a null result
+  * Pass route params that developers define on their app.use
+  * Support nested APIs (thanks @jimdillon)
+  * Adapter responses are validated to ensure compliance with FH.Sync Object
+  format
+
 * 0.2.0
   * Restructure codebase
   * Instead of multiple args, an options object is now expected

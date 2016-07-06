@@ -1,5 +1,7 @@
 # fh-rest-express-router
 
+[![Circle CI](https://circleci.com/gh/feedhenry-staff/fh-rest-express-router/tree/master.svg?style=svg)](https://circleci.com/gh/ffeedhenry-staff/fh-rest-express-router/tree/master)
+
 Spend less time writing repetitive integrations, and more time building
 mobile applications!
 

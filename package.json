@@ -1,6 +1,6 @@
 {
   "name": "fh-rest-express-router",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Simlpe RESTful API creation for backend data stores",
   "main": "lib/router.js",
   "scripts": {

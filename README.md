@@ -96,9 +96,9 @@ var ordersRouter = fhRestExpressRouter({
 
   // Joi schemas that validate the querystring/body is safe for a request
   validations: {
-    'list': require('./validate-list'),
-    'create': require('./validate-create'),
-    'update': require('./validate-update')
+    'list': [require('./validate-list')],
+    'create': [require('./validate-create')],
+    'update': [require('./validate-update')]
   },
 
   // The adapter that performs CRUDL functions on your behalf
@@ -140,7 +140,7 @@ supports being passed the following options:
 
 * [Required] adapter - adapter instance that will handle CRUDL operations
 * [Required] name - a name that will identify this adapter in logs
-* [Optional] validations - Object containing Joi schemas that will be used to
+* [Optional] validations - Array containing Joi schemas that will be used to
 validate data passed to create, update, and list operations is safe.
 
 

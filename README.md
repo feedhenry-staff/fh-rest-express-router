@@ -1,6 +1,6 @@
 # fh-rest-express-router
 
-[![Circle CI](https://circleci.com/gh/feedhenry-staff/fh-rest-express-router/tree/master.svg?style=svg)](https://circleci.com/gh/ffeedhenry-staff/fh-rest-express-router/tree/master)
+[![Circle CI](https://travis-ci.org/feedhenry-staff/fh-rest-express-router.svg?branch=master)](https://travis-ci.org/feedhenry-staff/fh-rest-express-router)
 
 Spend less time writing repetitive integrations, and more time building
 mobile applications!
@@ -8,11 +8,11 @@ mobile applications!
 ## What? Why? How?
 
 ### What?
-A node.js module that simplifies RESTful HTTP API creation with the purpose of
-exposing a backend data store with support for CRUDL operations.
+A node.js module that simplifies and standardises the creation of RESTful HTTP
+APIs for a mobility development team.
 
 ### Why?
-Exposing legacy data to mobile devices should be:
+Exposing data to mobile devices should be:
 
 * Simple
 * Secure
@@ -26,25 +26,34 @@ then be leveraged as part of their mobility strategy.
 ### How?
 Red Hat Mobile Application Platform creates microservices using the express web
 framework. Utilising the modular nature of node.js and express allowed us to
-create *fh-rest-express-router*. *fh-rest-express-router* creates a series of
-RESTful route handlers for dataset identified with a *String:name*, and
-interfaces with the underlying store using a set of adapters. This HTTP API can
-then be used to perform CRUDL operations on the underlying dataset.
+create *fh-rest-express-router*.
+
+*fh-rest-express-router* creates a series of RESTful route handlers for a
+dataset identified with a *String:name*, and interfaces with an underlying
+data store via an adapter. This HTTP API can then be used to perform CRUDL
+operations on the underlying dataset through the adapter.
 
 It can be called by a Cloud Application on RHMAP by using *fh.service* and, as
 an added bonus, the created RESTful API can be utilised by *fh-rest-sync-proxy*
 since the format exposed is compatible with the FH.Sync SDK; this means you can
 synchronise backend data to mobile devices and perform CRUDL operations with a
-ludicrously minimal amount of code.
+ludicrously small amount of code.
 
+
+## Adapters
+In the last section we mentioned that adapters perform the heavy lifting for
+your RESTful API that is created by _fh-rest-express-router_. We currently have
+a number of adapters that can be used for common data stores.
+
+* _fh-rest-mysql-adapter_ - reads and writes data to a table in MySQL
+* _fh-rest-mongodb-adapter_ - reads and writes data to a MongoDB collection
+* _fh-rest-memory-adapter_ - stores data in the node.js microservice memory,
+this is volatile and therefore should not be used if data must be persisted
 
 ## Install
-Not currently published on npm, but you can still install from GitHub via npm:
-
-(Only tested with npm 3)
 
 ```
-npm install feedhenry-staff/fh-rest-express-router
+npm install fh-rest-express-router --save
 ```
 
 ## Usage
@@ -82,7 +91,17 @@ var fhRestMySqlAdapter = require('fh-rest-mysql-adapter');
 // Creates a handler for incoming HTTP requests that want to perform CRUDL
 // operations on the "orders" table in your MySQL database
 var ordersRouter = fhRestExpressRouter({
+  // The name of this router
   name: 'orders',
+
+  // Joi schemas that validate the querystring/body is safe for a request
+  validations: {
+    'list': require('./validate-list'),
+    'create': require('./validate-create'),
+    'update': require('./validate-update')
+  },
+
+  // The adapter that performs CRUDL functions on your behalf
   adapter: fhRestMySqlAdapter({
     dbOpts: {
       // See: https://github.com/felixge/node-mysql
@@ -114,15 +133,42 @@ app.listen(port, function() {
 });
 ```
 
+## API
+This module is a simple factory function. Simply require it, then call it with
+options to make it return preconfigured instances of _express.Router_. It
+supports being passed the following options:
+
+* [Required] adapter - adapter instance that will handle CRUDL operations
+* [Required] name - a name that will identify this adapter in logs
+* [Optional] validations - Object containing Joi schemas that will be used to
+validate data passed to create, update, and list operations is safe.
 
 
-## RESTful API Definition
+## RESTful (HTTP) API Definition
 The example provided above exposes a RESTful API that uses JSON as the data
-interchange format. Below we cover the routes exposed that will facilitate the
-CRUDL operations discussed.
+interchange format. Below we cover the routes it exposes that will facilitate
+the CRUDL operations discussed.
 
 In the below examples *dataset-name* can be anything you like, e.g "orders"
 from the example above, or "users" in the sample below.
+
+#### Try it Out
+If all this talk of RESTful APIs and routes has you confused, fear not. We've
+included a sample server and set of requests to help.
+
+To run the server type `npm install` inside this folder, followed by
+`npm run example` when that has completed. Congratulations you're now running
+a RESTful API locally.
+
+To hit your local server try using the *postman_collection* file included.
+Download Postman, then use *Collections => Import* to load the sample requests
+file included, *fh-rest-express-router.json.postman_collection*. After doing
+this you can use Postman to make CRUDL calls to the local server. Take note of
+the ID (uid) returned from create operations so you can update URLs accordingly
+in Postman, i.e change "1" to whatever uid was returned by create or list calls.
+
+Note: You can use cURL or any other HTTP client to hit the example server, but
+Postman is a nice cross platform tool for doing so.
 
 #### Request Definition
 Each incoming request should have the *Content-Type* header set to
@@ -219,8 +265,16 @@ Sample response:
 
 ## Changelog
 
+* 0.4.0
+  * Support for Joi validations on incoming request body and querystrings for
+  create, update, and list operations
+  * Add Apache Licence (thanks @matzew)
+  * Update example code
+  * Include Postman file for demonstration of requests
+  * Only support node.js 4.0 and above (due to inclusion of Joi)
+
 * 0.3.0 - 0.3.1
-  * Return 404 if adapter returns a null result
+  * Return 404 if adapter returns a null result (for delete or read)
   * Pass route params that developers define on their app.use
   * Support nested APIs (thanks @jimdillon)
   * Adapter responses are validated to ensure compliance with FH.Sync Object

@@ -22,6 +22,9 @@ app.use(
   '/users',
   fhRestRouter({
     name: 'users',
+    validations: {
+      create: [require('./validate-create')]
+    },
     adapter: memoryRestAdapter()
   })
 );

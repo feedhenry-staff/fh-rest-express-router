@@ -15,6 +15,8 @@ module.exports = function () {
 
       data[id] = params.data;
 
+      // Return data in our custom format to keep things standardised and
+      // compatible with the feedhenry sync framework
       done(null, {
         uid: id,
         data: data
@@ -26,12 +28,18 @@ module.exports = function () {
     },
 
     update: function (params, done) {
-      data[params.id] = params.data;
-
-      done(null, params.data);
+      if (data[params.id]) {
+        data[params.id] = params.data;
+        done(null, params.data);
+      } else {
+        // Doesn't exist. Will cause a 404 to be returned
+        done(null, null);
+      }
     },
 
     list: function (params, done) {
+      // Return all of our data, this adapter does not support querystring
+      // use for filtering data as it's a simple example
       done(null, data);
     },
 
@@ -39,7 +47,8 @@ module.exports = function () {
       var d = data[params.id];
 
       if (!d) {
-        done(new Error('invalid id passed to delete'));
+        // Cannot delete something that doesn't exist. Will return a 404
+        done(null, null);
       } else {
         delete data[params.id];
 

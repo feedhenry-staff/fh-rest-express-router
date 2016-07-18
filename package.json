@@ -33,8 +33,10 @@
   },
   "homepage": "https://github.com/feedhenry-staff/fh-rest-express-router#readme",
   "dependencies": {
+    "async": "^2.0.0",
     "body-parser": "^1.15.1",
     "fh-bunyan": "^0.2.0",
+    "joi": "^9.0.1",
     "lodash": "^4.13.1",
     "verror": "^1.6.1"
   },
@@ -45,7 +47,7 @@
     "fh-mbaas-api": "^5.13.1",
     "istanbul": "^0.4.3",
     "jshint": "^2.9.2",
-    "linelint": "^1.0.0",
+    "linelint": "^1.0.1",
     "mocha": "^2.4.5",
     "proxyquire": "^1.7.10",
     "sinon": "^1.17.4",
@@ -53,5 +55,8 @@
   },
   "peerDependencies": {
     "express": ">=4.14.0"
+  },
+  "engines": {
+    "node": ">=4.0"
   }
 }

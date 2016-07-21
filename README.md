@@ -265,6 +265,9 @@ Sample response:
 
 ## Changelog
 
+* 0.4.1 - 0.4.3
+  * Struggles with peerDependencies. Ultimately we will retain this config.
+
 * 0.4.0
   * Support for Joi validations on incoming request body and querystrings for
   create, update, and list operations

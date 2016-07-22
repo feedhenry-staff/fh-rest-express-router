@@ -122,7 +122,7 @@ var ordersRouter = fhRestExpressRouter({
 
 // Expose a RESTful API to orders data, e.g:
 // GET /orders/12345
-app.use(ordersRouter);
+app.use('/orders', ordersRouter);
 
 // Important that this is last!
 app.use(mbaasExpress.errorHandler());

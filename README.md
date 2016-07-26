@@ -86,7 +86,7 @@ var fhRestExpressRouter = require('fh-rest-express-router');
 
 // Module that RESTful router will use to retrieve data
 // Note: this is not yet developed
-var fhRestMySqlAdapter = require('fh-rest-mysql-adapter');
+var fhRestMemoryAdapter = require('fh-rest-memory-adapter');
 
 // Creates a handler for incoming HTTP requests that want to perform CRUDL
 // operations on the "orders" table in your MySQL database
@@ -94,7 +94,8 @@ var ordersRouter = fhRestExpressRouter({
   // The name of this router
   name: 'orders',
 
-  // Joi schemas that validate the querystring/body is safe for a request
+  // Joi schemas that validate the querystring/body is safe to pass to
+  // an adapter instance. Only for list, create, and update
   validations: {
     'list': [require('./validate-list')],
     'create': [require('./validate-create')],
@@ -102,27 +103,21 @@ var ordersRouter = fhRestExpressRouter({
   },
 
   // The adapter that performs CRUDL functions on your behalf
-  adapter: fhRestMySqlAdapter({
-    dbOpts: {
-      // See: https://github.com/felixge/node-mysql
-      host: 'localhost',
-      user: 'shadowman',
-      password: 'redhat',
-      database: 'mobile'
-    },
+  adapter: fhRestMemoryAdapter()
+});
 
-    // Database table to expose
-    table: 'orders',
+ordersRouter.events.on('create-success', function (data) {
+  // Do something with the data
+  console.log('created order with data', data);
+});
 
-    // Primary key for items in the "orders" table.
-    // Required to map entries to an fh.sync SDK friendly format
-    pk: 'id'
-  })
-})
+ordersRouter.events.on('create-fail', function (data) {
+  // Take an action to handle the error, e.g report it somewhere
+});
 
 // Expose a RESTful API to orders data, e.g:
 // GET /orders/12345
-app.use(ordersRouter);
+app.use('/orders', ordersRouter);
 
 // Important that this is last!
 app.use(mbaasExpress.errorHandler());
@@ -135,13 +130,35 @@ app.listen(port, function() {
 
 ## API
 This module is a simple factory function. Simply require it, then call it with
-options to make it return preconfigured instances of _express.Router_. It
-supports being passed the following options:
+options to make it return preconfigured instances of _express.Router_.
+
+### Options
+It supports being passed the following options:
 
 * [Required] adapter - adapter instance that will handle CRUDL operations
 * [Required] name - a name that will identify this adapter in logs
 * [Optional] validations - Array containing Joi schemas that will be used to
 validate data passed to create, update, and list operations is safe.
+
+### Events
+Events can be accessed using the *router.events* which is an EventEmitter
+instance. It emits the following events:
+
+* create-fail
+* read-fail
+* update-fail
+* delete-fail
+* list-fail
+* create-success
+* read-success
+* update-success
+* delete-success
+* list-success
+
+Success event callbacks are passed the response the adapter generated. Error
+events are passed the _Error_ instance that has been generated. Check the
+examples for more information.
+
 
 
 ## RESTful (HTTP) API Definition
@@ -265,8 +282,12 @@ Sample response:
 
 ## Changelog
 
+* 0.5.0
+  * Add events for "success" and "fail" on on CRUDL calls. This might change to
+  be emitted by adapters in the future.
+
 * 0.4.1 - 0.4.3
-  * Struggles with peerDependencies. Ultimately we will retain this config.
+  * Struggles with peerDependencies. Ultimately we will retain this config
 
 * 0.4.0
   * Support for Joi validations on incoming request body and querystrings for

@@ -17,25 +17,37 @@ app.use('/mbaas', mbaasExpress.mbaas);
 // Note: important that this is added just before your own Routes
 app.use(mbaasExpress.fhmiddleware());
 
+var usersRouter = fhRestRouter({
+  name: 'users',
+  validations: {
+    create: [require('./validate-create')]
+  },
+  adapter: memoryRestAdapter()
+});
+
 // Add a /users route that's linked to an in memory store
 app.use(
   '/users',
-  fhRestRouter({
-    name: 'users',
-    validations: {
-      create: [require('./validate-create')]
-    },
-    adapter: memoryRestAdapter()
-  })
+  usersRouter
 );
+
+var ordersRouter = fhRestRouter({
+  name: 'orders',
+  adapter: memoryRestAdapter()
+});
+
+ordersRouter.events.on('create-success', function (data) {
+  log.info('created order, result is:', data);
+});
+
+usersRouter.events.on('create-success', function (data) {
+  log.info('created user, result is:', data);
+});
 
 // Add an /orders route linked to an in memory store
 app.use(
   '/orders',
-  fhRestRouter({
-    name: 'orders',
-    adapter: memoryRestAdapter()
-  })
+  ordersRouter
 );
 
 // Important that this is last!

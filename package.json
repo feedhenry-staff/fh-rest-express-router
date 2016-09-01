@@ -35,7 +35,7 @@
   "homepage": "https://github.com/feedhenry-staff/fh-rest-express-router#readme",
   "dependencies": {
     "async": "^2.0.0",
-    "body-parser": "^1.15.1",
+    "body-parser": "^1.15.2",
     "fh-bunyan": "^0.3.0",
     "is-object": "^1.0.1",
     "joi": "^9.0.1",
@@ -46,7 +46,7 @@
     "chai": "^3.5.0",
     "clear-require": "^1.0.1",
     "express": "^4.14.0",
-    "fh-mbaas-api": "^5.13.1",
+    "fh-mbaas-api": "5.13.4",
     "istanbul": "^0.4.3",
     "jshint": "^2.9.2",
     "linelint": "^1.0.1",

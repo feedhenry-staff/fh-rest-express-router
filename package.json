@@ -35,10 +35,11 @@
   "dependencies": {
     "async": "^2.0.0",
     "body-parser": "^1.15.1",
-    "fh-bunyan": "^0.2.0",
+    "fh-bunyan": "^0.3.0",
     "is-object": "^1.0.1",
     "joi": "^9.0.1",
     "lodash": "^4.13.1",
+    "lodash-deep": "^2.0.0",
     "verror": "^1.6.1"
   },
   "devDependencies": {

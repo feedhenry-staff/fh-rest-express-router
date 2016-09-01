@@ -19,10 +19,15 @@ app.use(mbaasExpress.fhmiddleware());
 
 var usersRouter = fhRestRouter({
   name: 'users',
-  validations: {
-    create: [require('./validate-create')]
-  },
-  adapter: memoryRestAdapter()
+  defaultVersion: 'v1',
+  versions: {
+    'v1': {
+      validations: {
+        create: [require('./validate-create')]
+      },
+      adapter: memoryRestAdapter()
+    }
+  }
 });
 
 // Add a /users route that's linked to an in memory store

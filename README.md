@@ -58,6 +58,73 @@ npm install fh-rest-express-router --save
 
 ## Usage
 
+### With API Versioning
+```js
+'use strict';
+
+/**
+ * filename: application.js
+ * The entry point of our RHAMP MBaaS Service
+ */
+
+var express = require('express')
+  , mbaasApi = require('fh-mbaas-api')
+  , mbaasExpress = mbaasApi.mbaasExpress()
+  , app = module.exports = express()
+  , log = require('fh-bunyan').getLogger(__filename);
+
+log.info('starting application');
+
+// Note: the order which we add middleware to Express here is important!
+app.use('/sys', mbaasExpress.sys([]));
+app.use('/mbaas', mbaasExpress.mbaas);
+
+// Note: important that this is added just before your own Routes
+app.use(mbaasExpress.fhmiddleware());
+
+// Module used to create RESTful router instances
+var fhRestExpressRouter = require('fh-rest-express-router');
+
+// Module that RESTful router will use to retrieve data
+// Note: this is not yet developed
+var fhRestMemoryAdapter = require('fh-rest-memory-adapter');
+
+// Creates a handler for incoming HTTP requests that want to perform CRUDL
+// operations on the "orders" table in your MySQL database
+var ordersRouter = fhRestExpressRouter({
+  // The name of this router
+  name: 'orders',
+  defaultVersion: 'v1',
+  versions: {
+    v1: {
+      // Joi schemas that validate the querystring/body is safe to pass to
+      // an adapter instance. Only for list, create, and update
+      validations: {
+        'list': [require('./validate-list')],
+        'create': [require('./validate-create')],
+        'update': [require('./validate-update')]
+      },
+
+      // The adapter that performs CRUDL functions on your behalf
+      adapter: fhRestMemoryAdapter()
+    }  
+  }
+});
+
+// Expose a RESTful API to orders data, e.g:
+// GET /orders/12345
+app.use('/orders', ordersRouter);
+
+// Important that this is last!
+app.use(mbaasExpress.errorHandler());
+
+var port = process.env.FH_PORT || process.env.VCAP_APP_PORT || 8001;
+app.listen(port, function() {
+  log.info('app started on port: %s', port);
+});
+```
+
+### Without API Versioning
 ```js
 'use strict';
 
@@ -104,15 +171,6 @@ var ordersRouter = fhRestExpressRouter({
 
   // The adapter that performs CRUDL functions on your behalf
   adapter: fhRestMemoryAdapter()
-});
-
-ordersRouter.events.on('create-success', function (data) {
-  // Do something with the data
-  console.log('created order with data', data);
-});
-
-ordersRouter.events.on('create-fail', function (data) {
-  // Take an action to handle the error, e.g report it somewhere
 });
 
 // Expose a RESTful API to orders data, e.g:
@@ -281,6 +339,9 @@ Sample response:
 ```
 
 ## Changelog
+
+* 0.6.0
+  * Add versioning of an API via use of *x-fh-rest-api-version* header
 
 * 0.5.0
   * Add events for "success" and "fail" on on CRUDL calls. This might change to

@@ -282,6 +282,11 @@ Sample response:
 
 ## Changelog
 
+* 0.6.0
+  * Now return a 405 for CRUDL functions that are missing; was a 500 error
+  previously
+  * Reduce package size using "files" in package.json
+
 * 0.5.0
   * Add events for "success" and "fail" on on CRUDL calls. This might change to
   be emitted by adapters in the future.

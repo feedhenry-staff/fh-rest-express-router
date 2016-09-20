@@ -3,7 +3,9 @@
   "version": "0.6.0",
   "description": "Simlpe RESTful API creation for backend data stores",
   "main": "lib/router.js",
-  "files": ["lib/"],
+  "files": [
+    "lib/"
+  ],
   "scripts": {
     "linelint": "linelint $(find lib/ -name '*.js' -not -name '*.test.js')",
     "jshint": "jshint $(find lib/ -name '*.js' -not -name '*.test.js')",

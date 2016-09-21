@@ -22,6 +22,13 @@ var usersRouter = fhRestRouter({
   validations: {
     create: [require('./validate-create')]
   },
+  // Strip any parameters from req.body of a POST to /users that are not
+  // specified in the Joi schema provided in validate-create.
+  joiValidateOptions: {
+    create: {
+      stripUnknown: true
+    }
+  }
   adapter: memoryRestAdapter()
 });
 

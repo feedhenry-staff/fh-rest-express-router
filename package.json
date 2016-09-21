@@ -30,6 +30,11 @@
     "express"
   ],
   "author": "Evan Shortiss",
+  "contributors": [
+    {
+      "name": "Jim Dillon"
+    }
+  ],
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/feedhenry-staff/fh-rest-express-router/issues"

@@ -102,6 +102,22 @@ var ordersRouter = fhRestExpressRouter({
     'update': [require('./validate-update')]
   },
 
+  // Joi.validate options used to control behavior of Joi.validate operations
+  // only for list, create, and update.
+  // (A validation must be set on the desired operation for the specified
+  // Joi.validate option(s) to be applied.)
+  joiValidateOptions: {
+    'list': {
+      allowUnknown: true //Allow parameters not in Joi schema through.
+    },
+    'create': {
+      stripUnknown: true //Remove parameters not in Joi schema.
+    },
+    'update': {
+      noDefaults: true // Do not use default values set in Joi schema.
+    }
+  },
+
   // The adapter that performs CRUDL functions on your behalf
   adapter: fhRestMemoryAdapter()
 });
@@ -139,6 +155,8 @@ It supports being passed the following options:
 * [Required] name - a name that will identify this adapter in logs
 * [Optional] validations - Array containing Joi schemas that will be used to
 validate data passed to create, update, and list operations is safe.
+* [Optional] joiValidateOptions - Object containing valid Joi.validate options
+to be used during the validation of create, update and or list operations.
 
 ### Events
 Events can be accessed using the *router.events* which is an EventEmitter
@@ -281,6 +299,10 @@ Sample response:
 ```
 
 ## Changelog
+
+* 0.7.0
+  * Support for Joi validate options to be used during Joi validations for
+  create, update, and list operations.
 
 * 0.6.0
   * Now return a 405 for CRUDL functions that are missing; was a 500 error

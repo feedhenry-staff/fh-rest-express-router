@@ -1,6 +1,6 @@
 {
   "name": "fh-rest-express-router",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Simlpe RESTful API creation for backend data stores",
   "main": "lib/router.js",
   "files": [
@@ -8,10 +8,10 @@
   ],
   "scripts": {
     "linelint": "linelint $(find lib/ -name '*.js' -not -name '*.test.js')",
-    "jshint": "jshint $(find lib/ -name '*.js' -not -name '*.test.js')",
+    "eslint": "eslint $(find lib/ -name '*.js' -not -name '*.test.js')",
     "check-coverage": "istanbul check-coverage --statements 98 --branches 98 --functions 98 --lines 98",
     "cover": "istanbul cover _mocha $(find lib/ -name '*.test.js')",
-    "format": "npm run linelint && npm run jshint",
+    "format": "npm run linelint && npm run eslint",
     "unit": "mocha $(find lib/ -name '*.test.js')",
     "test": "npm run format && npm run unit && npm run cover && npm run check-coverage",
     "example": "node example/index.js | bunyan"
@@ -41,26 +41,26 @@
   },
   "homepage": "https://github.com/feedhenry-staff/fh-rest-express-router#readme",
   "dependencies": {
-    "async": "^2.0.0",
-    "body-parser": "^1.15.2",
-    "fh-bunyan": "^0.3.0",
-    "is-object": "^1.0.1",
-    "joi": "^9.0.1",
-    "lodash": "^4.13.1",
-    "verror": "^1.6.1"
+    "async": "~2.0.0",
+    "body-parser": "~1.15.2",
+    "fh-bunyan": "~0.3.0",
+    "is-object": "~1.0.1",
+    "joi": "~9.0.1",
+    "lodash": "~4.13.1",
+    "verror": "~1.6.1"
   },
   "devDependencies": {
-    "chai": "^3.5.0",
-    "clear-require": "^1.0.1",
-    "express": "^4.14.0",
-    "fh-mbaas-api": "5.13.4",
-    "istanbul": "^0.4.3",
-    "jshint": "^2.9.2",
-    "linelint": "^1.0.1",
-    "mocha": "^2.4.5",
-    "proxyquire": "^1.7.10",
-    "sinon": "^1.17.4",
-    "supertest": "^0.9.2"
+    "chai": "~3.5.0",
+    "clear-require": "~1.0.1",
+    "eslint": "~3.6.1",
+    "express": "~4.14.0",
+    "istanbul": "~0.4.3",
+    "jshint": "~2.9.2",
+    "linelint": "~1.0.1",
+    "mocha": "~2.4.5",
+    "proxyquire": "~1.7.10",
+    "sinon": "~1.17.4",
+    "supertest": "~0.9.2"
   },
   "peerDependencies": {
     "express": ">=4.14.0"

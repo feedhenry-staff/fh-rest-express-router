@@ -117,7 +117,7 @@ const ordersRouter = fhRestExpressRouter({
     'list': [{
       schema: require('./validate-list-schema.js'),
       options: {
-        allowUnknown: true //Allow parameters not in Joi schema through
+        stripUnknown: true //Allow parameters not in Joi schema through
       }
     }],
     'create': [{

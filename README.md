@@ -1,6 +1,7 @@
 # fh-rest-express-router
 
 [![Circle CI](https://travis-ci.org/feedhenry-staff/fh-rest-express-router.svg?branch=master)](https://travis-ci.org/feedhenry-staff/fh-rest-express-router)
+[![node](https://img.shields.io/node/v/gh-badges.svg?maxAge=2592000)](https://github.com/feedhenry-staff/fh-rest-express-router)
 
 Spend less time writing repetitive integrations, and more time building awesome
 mobile APIs!

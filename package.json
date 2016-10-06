@@ -54,6 +54,7 @@
     "clear-require": "~1.0.1",
     "eslint": "~3.6.1",
     "express": "~4.14.0",
+    "fh-mbaas-api": "~5.14.1",
     "istanbul": "~0.4.3",
     "jshint": "~2.9.2",
     "linelint": "~1.0.1",

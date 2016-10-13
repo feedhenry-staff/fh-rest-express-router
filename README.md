@@ -1,49 +1,61 @@
 # fh-rest-express-router
 
 [![Circle CI](https://travis-ci.org/feedhenry-staff/fh-rest-express-router.svg?branch=master)](https://travis-ci.org/feedhenry-staff/fh-rest-express-router)
+[![node](https://img.shields.io/node/v/gh-badges.svg?maxAge=2592000)](https://github.com/feedhenry-staff/fh-rest-express-router)
 
-Spend less time writing repetitive integrations, and more time building
-mobile applications!
+Spend less time writing repetitive integrations, and more time building awesome
+mobile APIs!
 
-## What? Why? How?
 
-### What?
-A node.js module that simplifies and standardises the creation of RESTful HTTP
-APIs for a mobility development team.
+## What?
+Building RESTful APIs in node.js typically has many decisions involved that
+aren't immediately apparent. For example, how do you plan to sanatise inputs
+that might contain invalid querystring parameters? Should you use an existing
+library to do this?
+How can you achieve it in a DRY (don't repeat yourself) manner whilst retaining
+flexility to add new rules in the future? A series of if/else statements? Sure
+that works, but are you aware of how JavaScript handles _parseInt_,
+the _Number_, and _NaN_ types? Do you want to unit test for all of those Number
+type edge cases? What about your URL structure and use of HTTP verbs? Should you
+use PUT or POST for updates?
 
-### Why?
-Exposing data to mobile devices should be:
-
-* Simple
-* Secure
-* Standardised
+It's a little overwhelming unless you're happy to invest a significant amount of
+time and effort to figure these things out. Thankfully *fh-rest-express-router*
+makes sensible decisions for you so you can save time on these details and do
+the real integration work required to power your API.
 
 Using microservices (MBaaS Services), built with *fh-rest*, running on the
 Red Hat Mobile Application Platform MBaaS enables enterprises to create
-lightweight, reusable APIs that meet the goals listed above. These APIs can
-then be leveraged as part of their mobility strategy.
+lightweight, reusable APIs that meet the goals listed above and avoid the
+pitfalls we discussed above. These APIs can then be leveraged as part of their
+wider mobility strategy.
 
-### How?
+
+## How?
 Red Hat Mobile Application Platform creates microservices using the express web
 framework. Utilising the modular nature of node.js and express allowed us to
 create *fh-rest-express-router*.
 
 *fh-rest-express-router* creates a series of RESTful route handlers for a
-dataset identified with a *String:name*, and interfaces with an underlying
-data store via an adapter. This HTTP API can then be used to perform CRUDL
-operations on the underlying dataset through the adapter.
+_dataset_ identified with a *String:name*, and interfaces with an underlying
+data store via an adapter/interface. Essentially this is a HTTP API that can be
+used to perform CRUDL operations on the underlying dataset through the adapter.
+Typically this dataset is a legacy SOAP system, Oracle Database, or some form of
+ESB.
 
-It can be called by a Cloud Application on RHMAP by using *fh.service* and, as
-an added bonus, the created RESTful API can be utilised by *fh-rest-sync-proxy*
-since the format exposed is compatible with the FH.Sync SDK; this means you can
-synchronise backend data to mobile devices and perform CRUDL operations with a
-ludicrously small amount of code.
+Your created can be called by a Cloud Application on RHMAP by using
+*fh.service* and, as an added bonus, the created RESTful API can be utilised
+by *fh-rest-sync-proxy* since the format exposed is compatible with the
+FH.Sync SDK; this means you can synchronise backend data to mobile devices and
+perform CRUDL operations with a ludicrously small amount of code. You can also
+use cURL and Postman.
 
 
 ## Adapters
 In the last section we mentioned that adapters perform the heavy lifting for
-your RESTful API that is created by _fh-rest-express-router_. We currently have
-a number of adapters that can be used for common data stores.
+your RESTful API that is created by _fh-rest-express-router_, by performing
+database calls, disk read/write, or other functions to support your RESTful API.
+We currently have a number of adapters that can be used for common data stores.
 
 * _fh-rest-mysql-adapter_ - reads and writes data to a table in MySQL
 * _fh-rest-mongodb-adapter_ - reads and writes data to a MongoDB collection
@@ -53,7 +65,9 @@ this is volatile and therefore should not be used if data must be persisted
 ## Install
 
 ```
+cd $YOUR_PROJECT_DIR
 npm install fh-rest-express-router --save
+npm install express@4.14 --save
 ```
 
 ## Usage
@@ -66,11 +80,14 @@ npm install fh-rest-express-router --save
  * The entry point of our RHAMP MBaaS Service
  */
 
-var express = require('express')
-  , mbaasApi = require('fh-mbaas-api')
-  , mbaasExpress = mbaasApi.mbaasExpress()
-  , app = module.exports = express()
-  , log = require('fh-bunyan').getLogger(__filename);
+const express = require('express')
+const mbaasApi = require('fh-mbaas-api')
+const mbaasExpress = mbaasApi.mbaasExpress()
+const app = module.exports = express()
+const log = require('fh-bunyan').getLogger(__filename);
+const Joi = require('joi');
+
+const port = process.env.FH_PORT || process.env.VCAP_APP_PORT || 8001;
 
 log.info('starting application');
 
@@ -82,42 +99,53 @@ app.use('/mbaas', mbaasExpress.mbaas);
 app.use(mbaasExpress.fhmiddleware());
 
 // Module used to create RESTful router instances
-var fhRestExpressRouter = require('fh-rest-express-router');
+const fhRestExpressRouter = require('fh-rest-express-router');
 
 // Module that RESTful router will use to retrieve data
 // Note: this is not yet developed
-var fhRestMemoryAdapter = require('fh-rest-memory-adapter');
+const fhRestMemoryAdapter = require('fh-rest-memory-adapter');
 
 // Creates a handler for incoming HTTP requests that want to perform CRUDL
 // operations on the "orders" table in your MySQL database
-var ordersRouter = fhRestExpressRouter({
+const ordersRouter = fhRestExpressRouter({
   // The name of this router
   name: 'orders',
 
   // Joi schemas that validate the querystring/body is safe to pass to
   // an adapter instance. Only for list, create, and update
-  validations: {
-    'list': [require('./validate-list')],
-    'create': [require('./validate-create')],
-    'update': [require('./validate-update')]
+  bodyAndQueryValidations: {
+    'list': [{
+      schema: require('./validate-list-schema.js'),
+      options: {
+        stripUnknown: true //Allow parameters not in Joi schema through
+      }
+    }],
+    'create': [{
+      schema: require('./validate-create-schema.js'),
+      options: {
+        allowUnknown: true // Remove parameters not in Joi schema
+      }
+    }],
+    'update': [{
+      schema: require('./validate-update-schema.js',
+      options: {
+        noDefaults: true // Do not use default values set in Joi schema
+      }
+    })]
   },
 
-  // Joi.validate options used to control behavior of Joi.validate operations
-  // only for list, create, and update.
-  // (A validation must be set on the desired operation for the specified
-  // Joi.validate option(s) to be applied.)
-  joiValidateOptions: {
-    'list': {
-      allowUnknown: true //Allow parameters not in Joi schema through.
-    },
-    'create': {
-      stripUnknown: true //Remove parameters not in Joi schema.
-    },
-    'update': {
-      noDefaults: true // Do not use default values set in Joi schema.
-    }
+  // Similar to the bodyAndQueryValidations, but operates on route params,
+  // AKA the variable parts of a url, e.g in "/orders/:id" the "id" is variable
+  routeParamValidations: {
+    'read': [{
+      schema: Joi.object().keys({
+        // Verify the id in the URL is an integer, if it's not then the request
+        // receives a "400 Bad Request" explaining this error
+        id: Joi.number().required()
+      }),
+      options: { /* optional joi options */ }
+    }]
   },
-
   // The adapter that performs CRUDL functions on your behalf
   adapter: fhRestMemoryAdapter()
 });
@@ -138,25 +166,26 @@ app.use('/orders', ordersRouter);
 // Important that this is last!
 app.use(mbaasExpress.errorHandler());
 
-var port = process.env.FH_PORT || process.env.VCAP_APP_PORT || 8001;
 app.listen(port, function() {
   log.info('app started on port: %s', port);
 });
 ```
 
 ## API
-This module is a simple factory function. Simply require it, then call it with
-options to make it return preconfigured instances of _express.Router_.
+This module is a factory function. Simply require it, then call it with
+options to make it return preconfigured instances of _express.Router_ as shown
+in the example above.
 
 ### Options
 It supports being passed the following options:
 
 * [Required] adapter - adapter instance that will handle CRUDL operations
 * [Required] name - a name that will identify this adapter in logs
-* [Optional] validations - Array containing Joi schemas that will be used to
-validate data passed to create, update, and list operations is safe.
-* [Optional] joiValidateOptions - Object containing valid Joi.validate options
-to be used during the validation of create, update and or list operations.
+* [Optional] bodyAndQueryValidations - Array containing Joi schemas and Joi
+options that will be used to validate data passed to create, update, and list
+operations is safe.
+* [Optional] routeParamValidations - Array containing Joi schemas and Joi
+options that will be used to validate parameters in a route (URL) are valid.
 
 ### Events
 Events can be accessed using the *router.events* which is an EventEmitter
@@ -175,7 +204,7 @@ instance. It emits the following events:
 
 Success event callbacks are passed the response the adapter generated. Error
 events are passed the _Error_ instance that has been generated. Check the
-examples for more information.
+/examples folder for more information.
 
 
 
@@ -298,7 +327,16 @@ Sample response:
 }
 ```
 
+## Contributors
+* @jimdillon
+* @matzew
+
 ## Changelog
+
+* 0.8.0
+  * Expand on previous Joi additions by utilising these for validation of URL
+  parameters. Take a look at the updated examples for usage since it has
+  changed slightly from 0.7.0.
 
 * 0.7.0
   * Support for Joi validate options to be used during Joi validations for

@@ -1,12 +1,13 @@
 'use strict';
 
-var express = require('express')
-  , mbaasApi = require('fh-mbaas-api')
-  , mbaasExpress = mbaasApi.mbaasExpress()
-  , memoryRestAdapter = require('./adapter')
-  , fhRestRouter = require('../lib/router')
-  , app = module.exports = express()
-  , log = require('fh-bunyan').getLogger(__filename);
+const express = require('express');
+const mbaasApi = require('fh-mbaas-api');
+const mbaasExpress = mbaasApi.mbaasExpress();
+const memoryRestAdapter = require('./adapter');
+const fhRestRouter = require('../lib/router');
+const app = module.exports = express();
+const log = require('fh-bunyan').getLogger(__filename);
+const Joi = require('Joi');
 
 log.info('starting application');
 
@@ -19,16 +20,33 @@ app.use(mbaasExpress.fhmiddleware());
 
 var usersRouter = fhRestRouter({
   name: 'users',
-  validations: {
-    create: [require('./validate-create')]
+
+  // Joi validations to be run for incoming CRUDL requests
+  bodyAndQueryValidations: {
+    create: [{
+      schema: require('./validate-create'),
+      options: {
+        // Strip any parameters from req.body of a POST to /users that are not
+        // specified in the Joi schema provided in validate-create.js
+        stripUnknown: true
+      }
+    }]
   },
-  // Strip any parameters from req.body of a POST to /users that are not
-  // specified in the Joi schema provided in validate-create.
-  joiValidateOptions: {
-    create: {
-      stripUnknown: true
-    }
-  }
+
+  // Inline Joi schema that ensures the ID passed into a read is valid. This is
+  // a valuable way to avoid sending garbage/unsafe queries to legacy systems
+  routeParamValidations: {
+    read: [{
+      schema: Joi.object().keys({
+        id: Joi.number()
+      }),
+      options: {
+        convert: true
+      }
+    }]
+  },
+
+  // We'll be storing data in process memory since it's easy for this example
   adapter: memoryRestAdapter()
 });
 
@@ -38,7 +56,7 @@ app.use(
   usersRouter
 );
 
-var ordersRouter = fhRestRouter({
+const ordersRouter = fhRestRouter({
   name: 'orders',
   adapter: memoryRestAdapter()
 });
@@ -60,7 +78,7 @@ app.use(
 // Important that this is last!
 app.use(mbaasExpress.errorHandler());
 
-var port = process.env.FH_PORT || process.env.VCAP_APP_PORT || 3001;
+const port = process.env.FH_PORT || process.env.VCAP_APP_PORT || 3001;
 app.listen(port, function() {
   log.info('app started on port: %s', port);
 });

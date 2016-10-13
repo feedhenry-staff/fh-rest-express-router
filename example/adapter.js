@@ -44,7 +44,7 @@ module.exports = function () {
     },
 
     delete: function (params, done) {
-      var d = data[params.id];
+      const d = data[params.id];
 
       if (!d) {
         // Cannot delete something that doesn't exist. Will return a 404

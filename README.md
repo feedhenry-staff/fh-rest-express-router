@@ -306,6 +306,7 @@ Sample response:
 
 ```json
 {
+  "group": "admin",
   "firstname": "red",
   "lastname": "hatter"
 }

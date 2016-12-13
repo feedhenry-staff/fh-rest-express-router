@@ -29,8 +29,9 @@ module.exports = function () {
 
     update: function (params, done) {
       if (data[params.id]) {
+        var oldData = data[params.id];
         data[params.id] = params.data;
-        done(null, params.data);
+        done(null, params.data, oldData);
       } else {
         // Doesn't exist. Will cause a 404 to be returned
         done(null, null);

@@ -69,6 +69,10 @@ usersRouter.events.on('create-success', function (data) {
   log.info('created user, result is:', data);
 });
 
+usersRouter.events.on('update-success', function (data, oldData) {
+  log.info('updated user, result is %j, and old data was %j', data, oldData);
+});
+
 // Add an /orders route linked to an in memory store
 app.use(
   '/orders',

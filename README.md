@@ -333,6 +333,11 @@ Sample response:
 
 ## Changelog
 
+* 0.9.0
+  * Update router events so that the signature has changed from fn(newData) to 
+  fn(newData, extraData). In an adapter function simply pass a third param to
+  the callback and it will be the _extraData_ in the related router.event. 
+
 * 0.8.0
   * Expand on previous Joi additions by utilising these for validation of URL
   parameters. Take a look at the updated examples for usage since it has

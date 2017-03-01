@@ -112,7 +112,7 @@ const ordersRouter = fhRestExpressRouter({
   name: 'orders',
 
   // Joi schemas that validate the querystring/body is safe to pass to
-  // an adapter instance. Only for list, create, and update
+  // an adapter instance. Only for list, create, update and read
   bodyAndQueryValidations: {
     'list': [{
       schema: require('./validate-list-schema.js'),
@@ -131,7 +131,13 @@ const ordersRouter = fhRestExpressRouter({
       options: {
         noDefaults: true // Do not use default values set in Joi schema
       }
-    })]
+    })],
+    'read': [{
+      schema: require('./validate-read-schema.js',
+      options: {
+        abortEarly: false // Run all validations and return any and all errors
+      }
+    }]
   },
 
   // Similar to the bodyAndQueryValidations, but operates on route params,
@@ -306,6 +312,7 @@ Sample response:
 
 ```json
 {
+  "group": "admin",
   "firstname": "red",
   "lastname": "hatter"
 }
@@ -334,9 +341,9 @@ Sample response:
 ## Changelog
 
 * 0.9.0
-  * Update router events so that the signature has changed from fn(newData) to 
+  * Update router events so that the signature has changed from fn(newData) to
   fn(newData, extraData). In an adapter function simply pass a third param to
-  the callback and it will be the _extraData_ in the related router.event. 
+  the callback and it will be the _extraData_ in the related router.event.
 
 * 0.8.0
   * Expand on previous Joi additions by utilising these for validation of URL

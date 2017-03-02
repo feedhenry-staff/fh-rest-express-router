@@ -127,13 +127,13 @@ const ordersRouter = fhRestExpressRouter({
       }
     }],
     'update': [{
-      schema: require('./validate-update-schema.js',
+      schema: require('./validate-update-schema.js'),
       options: {
         noDefaults: true // Do not use default values set in Joi schema
       }
     })],
     'read': [{
-      schema: require('./validate-read-schema.js',
+      schema: require('./validate-read-schema.js'),
       options: {
         abortEarly: false // Run all validations and return any and all errors
       }
@@ -339,6 +339,9 @@ Sample response:
 * @matzew
 
 ## Changelog
+
+* 10.0.0
+  * Querystrings with Joi validation support are available for read operations.
 
 * 0.9.0
   * Update router events so that the signature has changed from fn(newData) to
